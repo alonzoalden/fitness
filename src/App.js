@@ -18,8 +18,8 @@ class App extends Component {
 
     axios.get('https://www.strava.com/api/v3/athlete/activities', {
       params: {
-        access_token: "e6f5be775faf79655e23c8d71dd059fbdc7bdb96",
-        per_page: 10,
+        access_token: ACCESS_TOKEN,
+        per_page: 100,
         after: yearAgoEpoch
       }
     })
@@ -27,28 +27,28 @@ class App extends Component {
         return !response ? 'Error retrieving data from Strava API' : response;
       })
       .then((response) => {
-        console.log(response)
-        var b = moment(yearAgoISO)
-        console.log('b', b.from(response.data[2].start_date))
 
-        console.log(moment(response.data[1].start_date))
-        console.log(response.data[2].start_date)
+        var yearAgo = moment(yearAgoISO);
         var rides = [];
-
+        var lastDate = null;
 
         for (var i = 0; i < response.data.length; i++) {
-          rides.push(response.data[i])
-          //set up holder to remember last date.
-          //compare current date to last date
-            //if it's 1 day,
-              //rides.push(ride)
-            //if its 2+ days
-              //daysBetween = days - 1
-              //set up while (daysBetween !== 0)
-                //daysBetween---
-                //rides.push(0)
-              //rides.push(ride)
-
+          var currentDate = moment(response.data[i].start_date);
+          var dateDiff = !lastDate ? currentDate.from(yearAgo) : currentDate.from(lastDate);
+          var daysBetween = 0;
+          var timeInWords = dateDiff.split(" ")
+          if (timeInWords[2] === 'day') {
+            rides.push(response.data[i])
+          } else if (timeInWords[2] === 'days') {
+            daysBetween = Number(timeInWords[1] - 1);
+            while (daysBetween !== 0) {
+              rides.push(0)
+              daysBetween--
+            }
+          } else {
+            rides.push(response.data[i])
+          }
+          lastDate = currentDate
         }
         console.log(rides)
         //start with a how long ago from one year
