@@ -12,67 +12,98 @@ class App extends Component {
   }
 
   authorize() {
-    var yearAgoISO = moment().utc().subtract(365, 'days');
+    var yearAgoISO = moment().utc().subtract(180, 'days');
     var yearAgoEpoch = yearAgoISO.unix();
-
 
     axios.get('https://www.strava.com/api/v3/athlete/activities', {
       params: {
-        access_token: ACCESS_TOKEN,
-        per_page: 100,
+        access_token: 'e6f5be775faf79655e23c8d71dd059fbdc7bdb96',
+        per_page: 180,
         after: yearAgoEpoch
       }
     })
-      .then((response) => {
-        return !response ? 'Error retrieving data from Strava API' : response;
+    .then((response) => {
+      console.log(response.data)
+      return !response ? 'Error retrieving data from Strava API' : response;
+    })
+    .then((response) => {
+      var fitnessData = this.sortFitness(response);
+      this.setState({
+        data: fitnessData
       })
-      .then((response) => {
-        var fitnessData = this.sortFitness(response)
-        this.setState({
-          data: fitnessData
-        })
-
-        //start with a how long ago from one year
-
-        //write algorithm that does a check for the last ride from the current ride using momentjs. for each amount of days in between each ride, push that many 0's into the array. these will represent off days where fitness will drop.
-
-        //if total fitness <20, multiply by 3
-        // < 40 multiply by 2
-        // < 60 multiply by 1
-        //i.e. tapers off over time.
-      })
+      console.log(this.state)
+    })
   }
 
   sortFitness(response) {
-    var yearAgoISO = moment().utc().subtract(365, 'days');
-    var yearAgoEpoch = yearAgoISO.unix();
-    var yearAgo = moment(yearAgoISO);
+    var timeAgoISO = moment().utc().subtract(180, 'days');
+    var yearAgoEpoch = timeAgoISO.unix();
+    var timeAgo = moment(timeAgoISO);
     var lastDate = null;
     var rides = [];
 
+    console.log('XXX', moment('2016-12-28T12:17:02Z').from('2017-01-24T11:48:00Z'))
     for (var i = 0; i < response.data.length; i++) {
-      var currentDate = moment(response.data[i].start_date);
-      var dateDiff = !lastDate ? currentDate.from(yearAgo) : currentDate.from(lastDate);
+      var currentDate = moment(response.data[i].start_date_local);
+      var dateDiff = !lastDate ? currentDate.from(timeAgo) : currentDate.from(lastDate);
       var daysBetween = 0;
-      var timeInWords = dateDiff.split(" ")
-      if (timeInWords[2] === 'day') {
-        rides.push(response.data[i])
-      } else if (timeInWords[2] === 'days') {
+      var timeInWords = dateDiff.split(" ");
+      if (timeInWords[2] === 'days') {
         daysBetween = Number(timeInWords[1] - 1);
         while (daysBetween !== 0) {
-          rides.push(0)
-          daysBetween--
+          rides.push(0);
+          daysBetween--;
         }
-      } else {
-        rides.push(response.data[i])
+      } else if (timeInWords[2] === 'month') {
+        var lastDateDIM = moment(lastDate).daysInMonth();
+        var lastDateNum = lastDate.toString().split('').slice(8, 10).join('');
+        var firstHalf = lastDateDIM - Number(lastDateNum);
+        var secondHalf = currentDate.toString().split('').slice(8, 10).join('');
+        daysBetween = firstHalf + Number(secondHalf);
+        console.log(currentDate, daysBetween)
+
+        while (daysBetween !== 0) {
+          rides.push(0);
+          daysBetween--;
+        }
+      } else if (timeInWords[2] === 'months') {
+        daysBetween = timeInWords[1] * 30;
+        while (daysBetween !== 0) {
+          rides.push(0);
+          daysBetween--;
+        }
       }
-      lastDate = currentDate
+
+      if (timeInWords[2] === 'hours') {
+        if (Number(timeInWords[1]) < 14) {
+          continue;
+        }
+      }
+      rides.push(response.data[i].start_date_local);
+      lastDate = currentDate;
     }
     return rides;
   }
 
+  createDatesArray() {
+    var timeAgoISO = moment().utc().subtract(180, 'days').format();
+    var date1 = new Date();
+    var date2 = new Date(timeAgoISO);
+    var day;
+    var datesBetween = [];
+
+    while(date2 <= date1) {
+        day = date1.getDate()
+        date1 = new Date(date1.setDate(--day));
+        var formattedDate = date1.toString().split('').slice(4, 15).join('');
+        datesBetween.push(formattedDate);
+    }
+    console.log(datesBetween)
+  }
+
   componentDidMount() {
     this.authorize();
+    this.createDatesArray();
   }
 
 
