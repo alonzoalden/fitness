@@ -43,7 +43,6 @@ class App extends Component {
     var lastDate = null;
     var rides = [];
 
-    console.log('XXX', moment('2016-12-28T12:17:02Z').from('2017-01-24T11:48:00Z'))
     for (var i = 0; i < response.data.length; i++) {
       var currentDate = moment(response.data[i].start_date_local);
       var dateDiff = !lastDate ? currentDate.from(timeAgoISO) : currentDate.from(lastDate);
@@ -62,7 +61,6 @@ class App extends Component {
         var firstHalf = lastDateDIM - Number(lastDateNum);
         var secondHalf = currentDate.toString().split('').slice(8, 10).join('');
         daysBetween = firstHalf + Number(secondHalf);
-        console.log(currentDate, daysBetween)
 
         while (daysBetween !== 0) {
           rides.push(0);
@@ -78,7 +76,6 @@ class App extends Component {
 
       if (timeInWords[2] === 'hours') {
         if (Number(timeInWords[1]) < 14 && i !== 0) {
-          console.log('ss')
           continue;
         }
       }
