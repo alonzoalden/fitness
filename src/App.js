@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
+import FitnessChart from './components/FitnessChart.js';
 import axios from 'axios';
 import moment from 'moment';
 
@@ -24,7 +25,6 @@ class App extends Component {
       }
     })
     .then((response) => {
-      console.log(response.data)
       return !response ? 'Error retrieving data from Strava API' : response;
     })
     .then((response) => {
@@ -32,7 +32,6 @@ class App extends Component {
       this.setState({
         data: fitnessData
       })
-      console.log(this.state)
     })
   }
 
@@ -79,7 +78,7 @@ class App extends Component {
           continue;
         }
       }
-      rides.push(response.data[i].start_date_local);
+      rides.push(response.data[i]);
       lastDate = currentDate;
     }
     if (rides.length < this.state.dates.length) {
@@ -113,10 +112,7 @@ class App extends Component {
   componentDidMount() {
     this.authorize();
     this.createDatesArray();
-    console.log(this.state)
   }
-
-
 
   render() {
     return (
@@ -127,6 +123,10 @@ class App extends Component {
         <p className="App-intro">
           Strava based fitness checker.
         </p>
+        <FitnessChart
+            data={this.state.data}
+            dates={this.state.dates}
+          />
       </div>
     );
   }
