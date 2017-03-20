@@ -3,6 +3,7 @@ import './App.css';
 import FitnessChart from './components/FitnessChart.js';
 import axios from 'axios';
 import moment from 'moment';
+import LineChart from './components/LineChart.js'
 
 class App extends Component {
   constructor(props) {
@@ -115,6 +116,12 @@ class App extends Component {
   }
 
   render() {
+
+    if (this.state.data.length === 0) {
+      return (
+        <p>loading</p>
+      );
+    }
     return (
       <div className="App">
         <div className="App-header">
@@ -123,10 +130,9 @@ class App extends Component {
         <p className="App-intro">
           Strava based fitness checker.
         </p>
-        <FitnessChart
-            data={this.state.data}
-            dates={this.state.dates}
-          />
+        <div id="graph">
+          <LineChart/>
+        </div>
       </div>
     );
   }

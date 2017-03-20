@@ -41,7 +41,7 @@ class FitnessChart extends React.Component {
   // append the svg obgect to the body of the page
   // appends a 'group' element to 'svg'
   // moves the 'group' element to the top left margin
-  var svg = d3.select("#graph").append("svg")
+  var svg = d3.select("#graph1").append("svg")
       .data(data)
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
@@ -82,7 +82,7 @@ class FitnessChart extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    // this.d3setup(nextProps.data)
+    this.d3setup(nextProps.data)
     console.log(nextProps.data, 'sssss')
   }
 
@@ -91,8 +91,7 @@ class FitnessChart extends React.Component {
   render() {
       console.log('asdf', this.props.data)
     return (
-      <div id="graph">
-      </div>
+      <div id="graph1"></div>
     );
 
     }
