@@ -33,6 +33,7 @@ class App extends Component {
       this.setState({
         data: fitnessData
       })
+      console.log(this.state.data, this.state.dates)
     })
   }
 
@@ -50,7 +51,27 @@ class App extends Component {
     let rideData = [];
     let lastDate = null;
 
-    const timeBetween(lastDate, currentDate) => {
+    const timeBetween = (startDate, endDate) => {
+      let daysBetween = 0;
+      let date1 = new Date(startDate);
+      let date2 = new Date(endDate);
+      let day;
+      let datesBetween = [date1.toString().split('').slice(4, 15).join('')];
+      while(date2 > date1) {
+          day = date1.getDate();
+          date1 = new Date(date1.setDate(++day));
+          var formattedDate = date1.toString().split('').slice(4, 15).join('');
+          datesBetween.push(formattedDate);
+      }
+      lastDate = date2;
+
+    for (let i = 0; i < response.data.length; i++) {
+      let currentTimeData = response.data[i].start_time_local;
+      !lastDate ? timeBetween(startTime, currentTimeData) : timeBetween(lastDate, currentTimeData)
+      currentTimeData = lastDate
+    }
+
+
       //take lastDate and currentDate
       //iterate with a while loop until it get's there
         //for all iterations, add to the array, an object of the current iteration's date with property called start_time_local
@@ -110,6 +131,7 @@ class App extends Component {
         rides.unshift(0);
       }
     }
+
     return rides;
   }
 
@@ -137,6 +159,7 @@ class App extends Component {
   componentDidMount() {
     this.authorize();
     this.createDatesArray();
+
   }
 
   render() {
