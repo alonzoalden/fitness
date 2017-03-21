@@ -3,7 +3,7 @@ import './App.css';
 import FitnessChart from './components/FitnessChart.js';
 import axios from 'axios';
 import moment from 'moment';
-import LineChart from './components/LineChart.js'
+// import LineChart from './components/LineChart.js'
 
 class App extends Component {
   constructor(props) {
@@ -35,6 +35,29 @@ class App extends Component {
       })
     })
   }
+
+  //new idea for sortFitness
+  //create helper method called days between. takes 2 date args, calc daysbetween, then adds objects with start_date property of the corresponding date iterated as many times from the amount calced from n daysbetween
+
+  //use moment to find the date of 180 days ago.
+  //make comparison of first date 180 days ago to first ride date.
+  //make comparison for each day in between
+
+  //should return an array, all objects should have the corresponding date
+
+  sortFitnessNew(response) {
+    let startTime = moment().utc().subtract(180, 'days');
+    let rideData = [];
+    let lastDate = null;
+
+    const timeBetween(lastDate, currentDate) => {
+      //take lastDate and currentDate
+      //iterate with a while loop until it get's there
+        //for all iterations, add to the array, an object of the current iteration's date with property called start_time_local
+
+    }
+  }
+
 
   sortFitness(response) {
     var timeAgoISO = moment().utc().subtract(180, 'days');
@@ -91,6 +114,7 @@ class App extends Component {
   }
 
   createDatesArray() {
+
     var timeAgoISO = moment().utc().subtract(179, 'days').format();
 
     var date1 = new Date();
@@ -131,7 +155,7 @@ class App extends Component {
           Strava based fitness checker.
         </p>
         <div id="graph">
-          <LineChart/>
+
         </div>
       </div>
     );
