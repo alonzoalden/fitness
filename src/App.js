@@ -29,11 +29,11 @@ class App extends Component {
       return !response ? 'Error retrieving data from Strava API' : response;
     })
     .then((response) => {
-      var fitnessData = this.sortFitness(response);
-      this.setState({
-        data: fitnessData
-      })
-      console.log(this.state.data, this.state.dates)
+      var fitnessData = this.sortFitnessNew(response);
+      // this.setState({
+      //   data: fitnessData
+      // })
+      console.log(fitnessData)
     })
   }
 
@@ -47,36 +47,51 @@ class App extends Component {
   //should return an array, all objects should have the corresponding date
 
   sortFitnessNew(response) {
-    let startTime = moment().utc().subtract(180, 'days');
+    let startDate = moment().utc().subtract(180, 'days')
     let rideData = [];
     let lastDate = null;
 
     const timeBetween = (startDate, endDate) => {
-      let daysBetween = 0;
-      let date1 = new Date(startDate);
-      let date2 = new Date(endDate);
+      let startDateStr = new Date(startDate).toString().split('').slice(0, 15).join('');
+      let endDateStr = new Date(endDate).toString().split('').slice(0, 15).join('');
+      let date1 = new Date(startDateStr);
+      let date2 = new Date(endDateStr);
+        console.log(date1)
+        console.log(date2)
+      let dayCount = Math.ceil(((date2 - date1) / 3600000) / 24);
       let day;
-      let datesBetween = [date1.toString().split('').slice(4, 15).join('')];
-      while(date2 > date1) {
-          day = date1.getDate();
-          date1 = new Date(date1.setDate(++day));
-          var formattedDate = date1.toString().split('').slice(4, 15).join('');
-          datesBetween.push(formattedDate);
-      }
-      lastDate = date2;
+        console.log(dayCount)
+      while(dayCount > 1) {
+          dayCount--
 
-    for (let i = 0; i < response.data.length; i++) {
-      let currentTimeData = response.data[i].start_time_local;
-      !lastDate ? timeBetween(startTime, currentTimeData) : timeBetween(lastDate, currentTimeData)
-      currentTimeData = lastDate
+          day = date1.getDate();
+          date1 = new Date(date1.setDate(day+=1));
+          console.log("this should be +1 day after the startdate/lastdate", new Date(date1))
+          var formattedDate = date1.toString().split('').slice(0, 15).join('');
+
+          rideData.push({ start_date_new: formattedDate });
+      }
+
+      lastDate = date2.toString().split('').slice(0, 15).join('');
+
     }
+
+      for (let i = 0; i < response.data.length; i++) {
+        let currentTimeData = response.data[i].start_date_local.slice(0,10);
+
+        !lastDate ? timeBetween(startDate, currentTimeData) : timeBetween(lastDate, currentTimeData);
+        // response.data[i].start_date_new = lastDate;
+        rideData.push(response.data[i]);
+      }
+
 
 
       //take lastDate and currentDate
       //iterate with a while loop until it get's there
         //for all iterations, add to the array, an object of the current iteration's date with property called start_time_local
 
-    }
+
+    return rideData;
   }
 
 
