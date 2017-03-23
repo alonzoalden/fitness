@@ -16,6 +16,7 @@ class App extends Component {
   }
 
   authorize() {
+    console.log(this.state)
     var yearAgoISO = moment().utc().subtract(180, 'days');
     var yearAgoEpoch = yearAgoISO.unix();
 
@@ -31,35 +32,36 @@ class App extends Component {
     })
     .then((response) => {
       this.createDatesArray();
-      console.log(this.state)
-      return response
+      return response;
     })
-    // .then((response) => {
-    //   let fitnessData = this.sortFitnessNew(response);
-    //   this.setState({
-    //     data: response.data,
-    //   })
-    //   console.log(new Date(this.state.data[1].start_date_local.slice(0,10)).toString().slice(4,15))
-    //   console.log(this.state)
-    // })
+    .then((response) => {
+      let fitnessData = this.sortFitnessNew(response);
+      this.setState({
+        data: fitnessData,
+      })
+      console.log(this.state)
+    })
   }
 
   sortFitnessNew(response) {
 
     for (var i = 0; i < response.data.length; i++) {
-      let startI = 0;
+      let startI = 1;
+      let currentRide = response.data[i];
+      var d = response.data[i].start_date_local.slice(0,10)+'T07:00:00Z';
+      let currentRideDate = new Date(d).toString().slice(4,15);
       for (var j = startI-1; j < this.state.formattedData.length; j++) {
-        let currentRide = response.data[i];
-        let currentRideDate = response.data[i].start_date_local.slice(0,10).toString().slice(4,15);
         let currentDate = this.state.formattedData[j].formattedDate;
-        let startI = 0;
+        console.log(currentRideDate, currentDate)
+
         if (currentRideDate === currentDate) {
           currentRide.formattedDate = currentRideDate;
           this.state.formattedData[j] = currentRide;
-
+          console.log(this.state.formattedData)
         }
+        ++startI
       }
-      startI++
+      startI = 0
     }
     //create for loop, for each response.data
       //create another for loop for dates
@@ -184,7 +186,6 @@ class App extends Component {
   }
 
   createDatesArray() {
-
     var timeAgoISO = moment().utc().subtract(179, 'days').format();
 
     var date1 = new Date();
@@ -201,8 +202,9 @@ class App extends Component {
 
 
     this.setState({
-      formattedData: datesBetween.reverse(),
+      formattedData: datesBetween
     })
+    console.log(this.state.formattedData)
   }
 
   componentDidMount() {
