@@ -44,13 +44,14 @@ class App extends Component {
   }
 
   sortFitnessNew(response) {
-
+    let startI = 1;
     for (var i = 0; i < response.data.length; i++) {
-      let startI = 1;
       let currentRide = response.data[i];
       var d = response.data[i].start_date_local.slice(0,10)+'T07:00:00Z';
       let currentRideDate = new Date(d).toString().slice(4,15);
+
       for (var j = startI-1; j < this.state.formattedData.length; j++) {
+        console.log(j)
         let currentDate = this.state.formattedData[j].formattedDate;
         console.log(currentRideDate, currentDate)
 
@@ -58,10 +59,11 @@ class App extends Component {
           currentRide.formattedDate = currentRideDate;
           this.state.formattedData[j] = currentRide;
           console.log(this.state.formattedData)
+          break;
         }
-        ++startI
+
       }
-      startI = 0
+      ++startI
     }
     //create for loop, for each response.data
       //create another for loop for dates
@@ -202,7 +204,7 @@ class App extends Component {
 
 
     this.setState({
-      formattedData: datesBetween
+      formattedData: datesBetween.reverse()
     })
     console.log(this.state.formattedData)
   }
