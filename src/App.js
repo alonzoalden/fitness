@@ -63,30 +63,38 @@ class App extends Component {
     this.setState({
       formattedData: datesBetween.reverse(),
     })
+    console.log(this.state)
   }
 
   //this sorts each index of the response data to the relative date index on the dates array
   sortFitness(response) {
-    let startI = 1;
+    let startJ = 1;
     for (var i = 0; i < response.data.length; i++) {
       let currentRide = response.data[i];
-      var d = response.data[i].start_date_local.slice(0,10)+'T07:00:00Z';
+      let d = response.data[i].start_date_local.slice(0,10)+'T07:00:00Z';
       let currentRideDate = new Date(d).toString().slice(4,15);
 
-      for (var j = startI-1; j < this.state.formattedData.length; j++) {
-        console.log(j)
+      for (var j = startJ-1; j < this.state.formattedData.length; j++) {
         let currentDate = this.state.formattedData[j].formattedDate;
-        console.log(currentRideDate, currentDate)
-
         if (currentRideDate === currentDate) {
           currentRide.formattedDate = currentRideDate;
           this.state.formattedData[j] = currentRide;
-          console.log(this.state.formattedData)
           break;
         }
-
+        ++startJ;
       }
-      ++startI; //potentially throw a while loop here to increment startI depending on how many days are in between (i.e. more than once if it's necessary) so far thinking: while(!response.data[startI].kiloj) { i ++ }
+    }
+  }
+
+  createFitnessLine(data) {
+    let total = 0;
+    //get kj / 500 for current fitness
+    //first 0 is - .5, after its -1
+    //add fitnessLine property to data item with corresponding current total
+
+    for (var i = 0; i < data.length; i++) {
+      total += total < 5000 ? (data[i].kilojoules / 500) : (data[i].kilojoules / 420);
+
     }
   }
 
