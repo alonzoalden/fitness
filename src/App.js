@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import './App.css';
-// import FitnessChart from './components/FitnessChart.js';
 import axios from 'axios';
 import moment from 'moment';
 // import LineChart from './components/LineChart.js'
+// import FitnessChart from './components/FitnessChart.js';
 
 class App extends Component {
   constructor(props) {
@@ -16,7 +16,6 @@ class App extends Component {
   }
 
   authorize() {
-    console.log(this.state)
     var yearAgoISO = moment().utc().subtract(180, 'days');
     var yearAgoEpoch = yearAgoISO.unix();
 
@@ -35,15 +34,39 @@ class App extends Component {
       return response;
     })
     .then((response) => {
-      let fitnessData = this.sortFitnessNew(response);
+      let fitnessData = this.sortFitness(response);
       this.setState({
         data: fitnessData,
       })
-      console.log(this.state)
     })
   }
 
-  sortFitnessNew(response) {
+  //this returns an array with all the dates from 180 days ago to today
+  createDatesArray() {
+    let timeAgoISO = moment().utc().subtract(179, 'days').format();
+    let date1 = new Date();
+    let date2 = new Date(timeAgoISO);
+    let day;
+    let datesBetween = [];
+
+    while(date2 < date1) {
+        let formattedDate = date1.toString().split('').slice(4, 15).join('');
+
+        datesBetween.push({
+          formattedDate: formattedDate,
+          fitLine: 0,
+        });
+
+        day = date1.getDate()
+        date1 = new Date(date1.setDate(--day));
+    }
+    this.setState({
+      formattedData: datesBetween.reverse(),
+    })
+  }
+
+  //this sorts each index of the response data to the relative date index on the dates array
+  sortFitness(response) {
     let startI = 1;
     for (var i = 0; i < response.data.length; i++) {
       let currentRide = response.data[i];
@@ -63,76 +86,11 @@ class App extends Component {
         }
 
       }
-      ++startI
+      ++startI; //potentially throw a while loop here to increment startI depending on how many days are in between (i.e. more than once if it's necessary) so far thinking: while(!response.data[startI].kiloj) { i ++ }
     }
-    //create for loop, for each response.data
-      //create another for loop for dates
-      //iterate thru the whole dates array
-        //do a match of start_date_local and dates.formattedDate
-          //if true
-            // extend this formattedDate on to (data[i].formattedDate = dates[i].formattedDate)
-            //iMemory = i - 1
   }
 
-  //new idea for sortFitness
-  //create helper method called days between. takes 2 date args, calc daysbetween, then adds objects with start_date property of the corresponding date iterated as many times from the amount calced from n daysbetween
-
-  //use moment to find the date of 180 days ago.
-  //make comparison of first date 180 days ago to first ride date.
-  //make comparison for each day in between
-
-  //should return an array, all objects should have the corresponding date
-
-  // sortFitnessNew(response) {
-  //   let startDate = moment().utc().subtract(180, 'days')
-  //   let rideData = [];
-  //   let lastDate = null;
-
-  //   const timeBetween = (startDate, endDate) => {
-  //     let startDateStr = new Date(startDate).toString().split('').slice(0, 15).join('');
-  //     let endDateStr = new Date(endDate).toString().split('').slice(0, 15).join('');
-  //     let date1 = new Date(startDateStr);
-  //     let date2 = new Date(endDateStr);
-  //       console.log(date1)
-  //       console.log(date2)
-  //     let dayCount = Math.ceil(((date2 - date1) / 3600000) / 24);
-  //     let day;
-  //       console.log(dayCount)
-  //     while(dayCount > 1) {
-  //         dayCount--
-
-  //         day = date1.getDate();
-  //         date1 = new Date(date1.setDate(day+=1));
-  //         console.log("this should be +1 day after the startdate/lastdate", new Date(date1))
-  //         var formattedDate = date1.toString().split('').slice(0, 15).join('');
-
-  //         rideData.push({ start_date_new: formattedDate });
-  //     }
-
-  //     lastDate = date2.toString().split('').slice(0, 15).join('');
-
-  //   }
-
-  //     for (let i = 0; i < response.data.length; i++) {
-  //       let currentTimeData = response.data[i].start_date_local.slice(0,10);
-
-  //       !lastDate ? timeBetween(startDate, currentTimeData) : timeBetween(lastDate, currentTimeData);
-  //       // response.data[i].start_date_new = lastDate;
-  //       rideData.push(response.data[i]);
-  //     }
-
-
-
-  //     //take lastDate and currentDate
-  //     //iterate with a while loop until it get's there
-  //       //for all iterations, add to the array, an object of the current iteration's date with property called start_time_local
-
-
-  //   return rideData;
-  // }
-
-
-  sortFitness(response) {
+  sortFitnessOld(response) {
     var timeAgoISO = moment().utc().subtract(180, 'days');
     var yearAgoEpoch = timeAgoISO.unix();
     var timeAgo = moment(timeAgoISO);
@@ -187,32 +145,10 @@ class App extends Component {
     return rides;
   }
 
-  createDatesArray() {
-    var timeAgoISO = moment().utc().subtract(179, 'days').format();
 
-    var date1 = new Date();
-    var date2 = new Date(timeAgoISO);
-    var day;
-    var datesBetween = [date1.toString().split('').slice(4, 15).join('')];
-
-    while(date2 < date1) {
-        day = date1.getDate()
-        date1 = new Date(date1.setDate(--day));
-        var formattedDate = date1.toString().split('').slice(4, 15).join('');
-        datesBetween.push({ formattedDate : formattedDate });
-    }
-
-
-    this.setState({
-      formattedData: datesBetween.reverse()
-    })
-    console.log(this.state.formattedData)
-  }
 
   componentDidMount() {
     this.authorize();
-
-
   }
 
   render() {
