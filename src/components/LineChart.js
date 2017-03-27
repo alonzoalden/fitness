@@ -8,14 +8,13 @@ class LineChart extends React.Component {
     super(props);
     this.state = {
       data: [],
-      dates: []
     }
   }
 
   componentWillReceiveProps(nextProps) {
+
     this.setState({
       data: nextProps.data,
-      dates: nextProps.dates
     })
   }
 
@@ -25,7 +24,8 @@ class LineChart extends React.Component {
       return (
         <p>loading</p>
       );
-    }
+    } else {
+
     // set units, margin, sizes
     var margin = { top: 20, right: 20, bottom: 70, left: 50 };
     var width = 700 - margin.left - margin.right;
@@ -50,30 +50,21 @@ class LineChart extends React.Component {
               "translate(" + margin.left + "," + margin.top + ")");
 
       // format the data
-      this.state.data.forEach((d) => {
+      // this.state.data.forEach((d) => {
+      //   d.formattedDate = parseTime(d.formattedDate)
+      // })
 
-
-          d.kilojoules = !d.kilojoules ? 0 : +d.kilojoules;
-
-          console.log(d.kilojoules)
-      });
-
-      this.state.dates.forEach((d) => {
-          d = parseTime(new Date(d).toISOString().slice(0,10));
-
-
-      });
       // Scale the range of the data
-      x.domain([new Date(this.state.dates[0]), new Date(this.state.dates[this.state.dates.length-1])]);
+      x.domain([new Date(this.state.data[0].formattedDate), new Date(this.state.data[this.state.data.length-1].formattedDate)]);
 
       y.domain([0, d3.max(this.state.data, function(d) { return d.kilojoules; })]);
 
     // //define the line
     var valueline = d3.line()
-        .x(function(d) { return x(d); })
+        .x(function(d) { return x(d.formattedDate); })
         .y(function(d) { return y(d.kilojoules); });
 
-      // Add the valueline path.
+      //Add the valueline path.
       svg.append("path")
           .datum(this.state.data)
           .attr("fill", "none")
@@ -109,7 +100,7 @@ class LineChart extends React.Component {
           .text("kilojoules");
 
     return node.toReact();
-
+    }
   }
 };
 

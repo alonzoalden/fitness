@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import axios from 'axios';
 import moment from 'moment';
-// import LineChart from './components/LineChart.js'
+import LineChart from './components/LineChart.js'
 // import FitnessChart from './components/FitnessChart.js';
 
 class App extends Component {
@@ -38,6 +38,8 @@ class App extends Component {
       this.setState({
         data: fitnessData,
       })
+      console.log(this.state)
+
     })
   }
 
@@ -55,6 +57,7 @@ class App extends Component {
         datesBetween.push({
           formattedDate: formattedDate,
           fitLine: 0,
+          kilojoules: 0,
         });
 
         day = date1.getDate()
@@ -63,7 +66,6 @@ class App extends Component {
     this.setState({
       formattedData: datesBetween.reverse(),
     })
-    console.log(this.state)
   }
 
   //this sorts each index of the response data to the relative date index on the dates array
@@ -71,6 +73,7 @@ class App extends Component {
     let startJ = 1;
     for (var i = 0; i < response.data.length; i++) {
       let currentRide = response.data[i];
+      let currentKj = response.data[i].kilojoules;
       let d = response.data[i].start_date_local.slice(0,10)+'T07:00:00Z';
       let currentRideDate = new Date(d).toString().slice(4,15);
 
@@ -79,8 +82,10 @@ class App extends Component {
         if (currentRideDate === currentDate) {
           currentRide.formattedDate = currentRideDate;
           this.state.formattedData[j] = currentRide;
+          this.state.formattedData[j].kilojoules = currentKj;
           break;
         }
+        // this.state.formattedData[j].formattedDate = new Date(currentDate)
         ++startJ;
       }
     }
@@ -88,12 +93,15 @@ class App extends Component {
 
   createFitnessLine(data) {
     let total = 0;
+    let consecutiveZero = 0;
     //get kj / 500 for current fitness
     //first 0 is - .5, after its -1
     //add fitnessLine property to data item with corresponding current total
 
     for (var i = 0; i < data.length; i++) {
-      total += total < 5000 ? (data[i].kilojoules / 500) : (data[i].kilojoules / 420);
+      total += total < 10000 ? (data[i].kilojoules / 600) : (data[i].kilojoules / 500);
+
+      data[i].kilojoules === 0 ? consecutiveZero += 1 : consecutiveZero = 0;
 
     }
   }
@@ -171,7 +179,9 @@ class App extends Component {
           Strava based fitness checker.
         </p>
         <div id="graph">
-
+          <LineChart
+            data={this.state.formattedData}
+          />
         </div>
       </div>
     );
