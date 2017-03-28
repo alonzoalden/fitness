@@ -30,22 +30,25 @@ class App extends Component {
       return !response ? 'Error retrieving data from Strava API' : response;
     })
     .then((response) => {
-      this.createDatesArray();
+
       return response;
     })
     .then((response) => {
-      let fitnessData = this.sortFitness(response);
+      let datesArray = this.createDatesArray();
+      let formattedData = this.sortFitness(response, datesArray);
+      formattedData.forEach((d) => {
+          d.formattedDate = new Date(d.formattedDate);
+          d.kilojoules = !d.kilojoules || d.kilojoules === undefined ?  0 : d.kilojoules;
+        });
       this.setState({
-        data: fitnessData,
+        data: formattedData,
       })
-      console.log(this.state)
-
-    })
+    });
   }
 
   //this returns an array with all the dates from 180 days ago to today
   createDatesArray() {
-    let timeAgoISO = moment().utc().subtract(179, 'days').format();
+    let timeAgoISO = moment().utc().subtract(180, 'days').format();
     let date1 = new Date();
     let date2 = new Date(timeAgoISO);
     let day;
@@ -63,13 +66,13 @@ class App extends Component {
         day = date1.getDate()
         date1 = new Date(date1.setDate(--day));
     }
-    this.setState({
-      formattedData: datesBetween.reverse(),
-    })
+
+    return datesBetween.reverse();
   }
 
   //this sorts each index of the response data to the relative date index on the dates array
-  sortFitness(response) {
+  sortFitness(response, dates) {
+    console.log(response.data)
     let startJ = 1;
     for (var i = 0; i < response.data.length; i++) {
       let currentRide = response.data[i];
@@ -77,18 +80,18 @@ class App extends Component {
       let d = response.data[i].start_date_local.slice(0,10)+'T07:00:00Z';
       let currentRideDate = new Date(d).toString().slice(4,15);
 
-      for (var j = startJ-1; j < this.state.formattedData.length; j++) {
-        let currentDate = this.state.formattedData[j].formattedDate;
+      for (var j = startJ-1; j < dates.length; j++) {
+        let currentDate = dates[j].formattedDate;
         if (currentRideDate === currentDate) {
           currentRide.formattedDate = currentRideDate;
-          this.state.formattedData[j] = currentRide;
-          this.state.formattedData[j].kilojoules = currentKj || 0;
+          dates[j] = currentRide;
+          dates[j].kilojoules = currentKj;
           break;
         }
-        // this.state.formattedData[j].formattedDate = new Date(currentDate)
         ++startJ;
       }
     }
+    return dates;
   }
 
   createFitnessLine(data) {
@@ -106,60 +109,60 @@ class App extends Component {
     }
   }
 
-  sortFitnessOld(response) {
-    var timeAgoISO = moment().utc().subtract(180, 'days');
-    var yearAgoEpoch = timeAgoISO.unix();
-    var timeAgo = moment(timeAgoISO);
-    var lastDate = null;
-    var rides = [];
+  // sortFitnessOld(response) {
+  //   var timeAgoISO = moment().utc().subtract(180, 'days');
+  //   var yearAgoEpoch = timeAgoISO.unix();
+  //   var timeAgo = moment(timeAgoISO);
+  //   var lastDate = null;
+  //   var rides = [];
 
-    for (var i = 0; i < response.data.length; i++) {
-      var currentDate = moment(response.data[i].start_date_local);
-      var dateDiff = !lastDate ? currentDate.from(timeAgoISO) : currentDate.from(lastDate);
-      var daysBetween = 0;
-      var timeInWords = dateDiff.split(" ");
+  //   for (var i = 0; i < response.data.length; i++) {
+  //     var currentDate = moment(response.data[i].start_date_local);
+  //     var dateDiff = !lastDate ? currentDate.from(timeAgoISO) : currentDate.from(lastDate);
+  //     var daysBetween = 0;
+  //     var timeInWords = dateDiff.split(" ");
 
-      if (timeInWords[2] === 'days') {
-        daysBetween = Number(timeInWords[1] - 1);
-        while (daysBetween !== 0) {
-          rides.push(0);
-          daysBetween--;
-        }
-      } else if (timeInWords[2] === 'month') {
-        var lastDateDIM = moment(lastDate).daysInMonth();
-        var lastDateNum = lastDate.toString().split('').slice(8, 10).join('');
-        var firstHalf = lastDateDIM - Number(lastDateNum);
-        var secondHalf = currentDate.toString().split('').slice(8, 10).join('');
-        daysBetween = firstHalf + Number(secondHalf);
+  //     if (timeInWords[2] === 'days') {
+  //       daysBetween = Number(timeInWords[1] - 1);
+  //       while (daysBetween !== 0) {
+  //         rides.push(0);
+  //         daysBetween--;
+  //       }
+  //     } else if (timeInWords[2] === 'month') {
+  //       var lastDateDIM = moment(lastDate).daysInMonth();
+  //       var lastDateNum = lastDate.toString().split('').slice(8, 10).join('');
+  //       var firstHalf = lastDateDIM - Number(lastDateNum);
+  //       var secondHalf = currentDate.toString().split('').slice(8, 10).join('');
+  //       daysBetween = firstHalf + Number(secondHalf);
 
-        while (daysBetween !== 0) {
-          rides.push(0);
-          daysBetween--;
-        }
-      } else if (timeInWords[2] === 'months') {
-        daysBetween = timeInWords[1] * 30;
-        while (daysBetween !== 0) {
-          rides.push(0);
-          daysBetween--;
-        }
-      }
+  //       while (daysBetween !== 0) {
+  //         rides.push(0);
+  //         daysBetween--;
+  //       }
+  //     } else if (timeInWords[2] === 'months') {
+  //       daysBetween = timeInWords[1] * 30;
+  //       while (daysBetween !== 0) {
+  //         rides.push(0);
+  //         daysBetween--;
+  //       }
+  //     }
 
-      if (timeInWords[2] === 'hours') {
-        if (Number(timeInWords[1]) < 14 && i !== 0) {
-          continue;
-        }
-      }
-      rides.push(response.data[i]);
-      lastDate = currentDate;
-    }
-    if (rides.length < this.state.dates.length) {
-      while (rides.length < this.state.dates.length) {
-        rides.unshift(0);
-      }
-    }
+  //     if (timeInWords[2] === 'hours') {
+  //       if (Number(timeInWords[1]) < 14 && i !== 0) {
+  //         continue;
+  //       }
+  //     }
+  //     rides.push(response.data[i]);
+  //     lastDate = currentDate;
+  //   }
+  //   if (rides.length < this.state.dates.length) {
+  //     while (rides.length < this.state.dates.length) {
+  //       rides.unshift(0);
+  //     }
+  //   }
 
-    return rides;
-  }
+  //   return rides;
+  // }
 
 
 
@@ -180,7 +183,7 @@ class App extends Component {
         </p>
         <div id="graph">
           <LineChart
-            data={this.state.formattedData}
+            data={this.state.data}
           />
         </div>
       </div>

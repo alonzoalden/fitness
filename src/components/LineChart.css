@@ -34,4 +34,16 @@ path.area {
   stroke: #000;
 }*/
 
-.bar { fill: steelblue; }
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.bar {
+  fill: steelblue;
+}
+
+.bar:hover {
+  fill: brown;
+}

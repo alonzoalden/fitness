@@ -17,12 +17,7 @@ class LineChart extends React.Component {
     this.setState({
       data: nextProps.data,
     })
-    this.state.data.forEach((d) => {
-        d.formattedDate = new Date(d.formattedDate);
-        d.kilojoules = !d.kilojoules || d.kilojoules === undefined ?  0 : d.kilojoules;
-      });
-
-
+    console.log(this.state)
 
   }
 
@@ -63,7 +58,7 @@ class LineChart extends React.Component {
       x.domain([new Date(this.state.data[0].formattedDate), new Date(this.state.data[this.state.data.length-1].formattedDate)])
 
       // y.domain([0, d3.max(this.state.data, function(d) { return d.kilojoules; })]);
-      y.domain([0, d3.max(this.state.data, function(d) { return d.kilojoules; }) + 100]);
+      y.domain([0, d3.max(this.state.data, function(d) { return d.kilojoules; }) + 200]);
 
 
 
@@ -106,6 +101,7 @@ class LineChart extends React.Component {
         .attr("class", "axis")
         .attr("transform", "translate(0," + height + ")")
         .call(d3.axisBottom(x)
+        .ticks(20)
         .tickFormat(d3.timeFormat("%b-%d-%Y")))
       .selectAll("text")
         .style("text-anchor", "end")
@@ -116,12 +112,11 @@ class LineChart extends React.Component {
 
       // Add the Y Axis
       svg.append("g")
-          .call(d3.axisLeft(y))
+          .call(d3.axisLeft(y).ticks(15))
         .append("text")
           .attr("fill", "#000")
-          .attr("transform", "rotate(-90)")
-          .attr("y", 6)
-          .attr("dy", "1.1em")
+          .attr("y", 1)
+          .attr("dy", ".6em")
           .attr("dx", "-0.5em")
           .attr("text-anchor", "end")
           .text("kilojoules");
@@ -130,10 +125,9 @@ class LineChart extends React.Component {
       .data(this.state.data)
     .enter().append("rect")
       .attr("class", "bar")
-      .attr("width", "5px")
+      .attr("width", "2.5px")
       .attr("x", function(d) { return x(d.formattedDate); })
-      .attr("y", height )
-      .attr("height", 0)
+      .attr("y", function(d) { return y(d.kilojoules); })
       .attr("height", function(d) { return height - y(d.kilojoules); });
 
 
