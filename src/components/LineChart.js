@@ -1,7 +1,9 @@
 import React from 'react';
+import './LineChart.css';
 import ReactFauxDOM from 'react-faux-dom';
 import * as d3 from 'd3';
 import moment from 'moment';
+
 
 class LineChart extends React.Component {
   constructor(props) {
@@ -12,10 +14,16 @@ class LineChart extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-
     this.setState({
       data: nextProps.data,
     })
+    this.state.data.forEach((d) => {
+        d.formattedDate = new Date(d.formattedDate);
+        d.kilojoules = !d.kilojoules || d.kilojoules === undefined ?  0 : d.kilojoules;
+      });
+
+
+
   }
 
   render() {
@@ -32,7 +40,7 @@ class LineChart extends React.Component {
     var height = 500 - margin.top - margin.bottom;
     var padding = 100
     //parse date / time
-    var parseTime = d3.timeParse("%Y-%m-%d");
+
 
     //set ranges
     var x = d3.scaleTime().rangeRound([0, width]);
@@ -49,30 +57,48 @@ class LineChart extends React.Component {
         .attr("transform",
               "translate(" + margin.left + "," + margin.top + ")");
 
-      // format the data
-      // this.state.data.forEach((d) => {
-      //   d.formattedDate = parseTime(d.formattedDate)
-      // })
 
+      // x.domain(this.state.data.map(function(d) { return d.formattedDate}  ));
       // Scale the range of the data
-      x.domain([new Date(this.state.data[0].formattedDate), new Date(this.state.data[this.state.data.length-1].formattedDate)]);
+      x.domain([new Date(this.state.data[0].formattedDate), new Date(this.state.data[this.state.data.length-1].formattedDate)])
 
-      y.domain([0, d3.max(this.state.data, function(d) { return d.kilojoules; })]);
+      // y.domain([0, d3.max(this.state.data, function(d) { return d.kilojoules; })]);
+      y.domain([0, d3.max(this.state.data, function(d) { return d.kilojoules; }) + 100]);
+
+
 
     // //define the line
     var valueline = d3.line()
         .x(function(d) { return x(d.formattedDate); })
         .y(function(d) { return y(d.kilojoules); });
 
-      //Add the valueline path.
-      svg.append("path")
-          .datum(this.state.data)
-          .attr("fill", "none")
-          .attr("stroke", "steelblue")
-          .attr("stroke-linejoin", "round")
-          .attr("stroke-linecap", "round")
-          .attr("stroke-width", 1.5)
-          .attr("d", valueline);
+      // //Add the valueline path.
+      // svg.append("path")
+      //     .datum(this.state.data)
+      //     .attr("fill", "none")
+      //     .attr("stroke", "steelblue")
+      //     .attr("stroke-linejoin", "round")
+      //     .attr("stroke-linecap", "round")
+      //     .attr("stroke-width", .5)
+      //     .attr("d", valueline);
+
+     //append the x grid line
+      svg.append("g")
+          .attr("class", "grid")
+          .attr("transform", "translate(0," + height + ")")
+          .call(d3.axisBottom(x)
+              .ticks(5)
+              .tickSize(-height)
+              .tickFormat("")
+          )
+     //append the y grid line
+      svg.append("g")
+          .attr("class", "grid")
+          .call(d3.axisLeft(y)
+              .ticks(3)
+              .tickSize(-width)
+              .tickFormat("")
+          )
 
 
       // Add the X Axis
@@ -95,9 +121,21 @@ class LineChart extends React.Component {
           .attr("fill", "#000")
           .attr("transform", "rotate(-90)")
           .attr("y", 6)
-          .attr("dy", "0.71em")
+          .attr("dy", "1.1em")
+          .attr("dx", "-0.5em")
           .attr("text-anchor", "end")
           .text("kilojoules");
+
+      svg.selectAll(".bar")
+      .data(this.state.data)
+    .enter().append("rect")
+      .attr("class", "bar")
+      .attr("width", "5px")
+      .attr("x", function(d) { return x(d.formattedDate); })
+      .attr("y", height )
+      .attr("height", 0)
+      .attr("height", function(d) { return height - y(d.kilojoules); });
+
 
     return node.toReact();
     }

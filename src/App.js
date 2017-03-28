@@ -82,7 +82,7 @@ class App extends Component {
         if (currentRideDate === currentDate) {
           currentRide.formattedDate = currentRideDate;
           this.state.formattedData[j] = currentRide;
-          this.state.formattedData[j].kilojoules = currentKj;
+          this.state.formattedData[j].kilojoules = currentKj || 0;
           break;
         }
         // this.state.formattedData[j].formattedDate = new Date(currentDate)
