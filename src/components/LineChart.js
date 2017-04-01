@@ -30,8 +30,8 @@ class LineChart extends React.Component {
     } else {
 
     // set units, margin, sizes
-    var margin = { top: 20, right: 20, bottom: 70, left: 50 };
-    var width = 700 - margin.left - margin.right;
+    var margin = { top: 20, right: 25, bottom: 70, left:80 };
+    var width = 825 - margin.left - margin.right;
     var height = 500 - margin.top - margin.bottom;
     var padding = 100
     //parse date / time
@@ -86,6 +86,9 @@ class LineChart extends React.Component {
               .tickSize(-height)
               .tickFormat("")
           )
+          .selectAll(".tick:not(:first-of-type) line").attr("stroke", "#777").attr("stroke-dasharray", "2,2")
+          .selectAll(".tick text").attr("x", 4).attr("dy", -4);
+
      //append the y grid line
       svg.append("g")
           .attr("class", "grid")
@@ -94,6 +97,8 @@ class LineChart extends React.Component {
               .tickSize(-width)
               .tickFormat("")
           )
+          .selectAll(".tick:not(:first-of-type) line").attr("stroke", "#777").attr("stroke-dasharray", "2,2")
+          .selectAll(".tick text").attr("x", 4).attr("dy", -4);
 
 
       // Add the X Axis
@@ -101,31 +106,30 @@ class LineChart extends React.Component {
         .attr("class", "axis")
         .attr("transform", "translate(0," + height + ")")
         .call(d3.axisBottom(x)
-        .ticks(20)
-        .tickFormat(d3.timeFormat("%b-%d-%Y")))
+        .ticks(10)
+        .tickFormat(d3.timeFormat("%b-%Y")))
       .selectAll("text")
         .style("text-anchor", "end")
-        .attr("dx", "-.8em")
-        .attr("dy", ".15em")
-        .attr("transform", "rotate(-65)");
+        .attr("dx", "2.10em")
+        .attr("dy", ".7em")
 
 
       // Add the Y Axis
       svg.append("g")
-          .call(d3.axisLeft(y).ticks(15))
-        .append("text")
-          .attr("fill", "#000")
-          .attr("y", 1)
-          .attr("dy", ".6em")
-          .attr("dx", "-0.5em")
-          .attr("text-anchor", "end")
-          .text("kilojoules");
+          .attr("class", "axis")
+          .call(d3.axisLeft(y)
+            .ticks(15)
+            .tickFormat(function(d) {
+              return this.parentNode.nextSibling
+                ? d
+                : d + ' Kilojoules'
+            }))
 
       svg.selectAll(".bar")
       .data(this.state.data)
     .enter().append("rect")
       .attr("class", "bar")
-      .attr("width", "2.5px")
+      .attr("width", "3px")
       .attr("x", function(d) { return x(d.formattedDate); })
       .attr("y", function(d) { return y(d.kilojoules); })
       .attr("height", function(d) { return height - y(d.kilojoules); });

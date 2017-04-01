@@ -9,9 +9,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      formattedData: [],
       data: [],
-      dates: [],
     }
   }
 
@@ -27,18 +25,20 @@ class App extends Component {
       }
     })
     .then((response) => {
-      return !response ? 'Error retrieving data from Strava API' : response;
-    })
-    .then((response) => {
-
-      return response;
+      return !response
+        ? 'Error retrieving data from Strava API'
+        : response;
     })
     .then((response) => {
       let datesArray = this.createDatesArray();
       let formattedData = this.sortFitness(response, datesArray);
+      let formattedDataFitnessLine = this.createFitnessLine(formattedData)
+      console.log(formattedDataFitnessLine)
       formattedData.forEach((d) => {
           d.formattedDate = new Date(d.formattedDate);
-          d.kilojoules = !d.kilojoules || d.kilojoules === undefined ?  0 : d.kilojoules;
+          d.kilojoules = !d.kilojoules || d.kilojoules === undefined
+            ?  0
+            : d.kilojoules;
         });
       this.setState({
         data: formattedData,
@@ -101,70 +101,39 @@ class App extends Component {
     //first 0 is - .5, after its -1
     //add fitnessLine property to data item with corresponding current total
 
+
+    //iterate
+      //each work out analyze amount of KJ.
+      //it will increase the total based on that amount
+
+
     for (var i = 0; i < data.length; i++) {
-      total += total < 10000 ? (data[i].kilojoules / 600) : (data[i].kilojoules / 500);
 
-      data[i].kilojoules === 0 ? consecutiveZero += 1 : consecutiveZero = 0;
+      let kj = data[i].kilojoules;
 
+      kj === 0
+        ? consecutiveZero += 1
+        : consecutiveZero = 0;
+
+
+      if (kj > 0) {
+
+        total += total < 10000
+          ? (kj / 500)
+          : (kj / 400);
+
+      } else {
+
+        total -= total > 0
+          ? total - (0.90 * total)
+          : 0;
+
+      }
+      data[i].fitnessLine = total;
+      console.log(data[i])
     }
+
   }
-
-  // sortFitnessOld(response) {
-  //   var timeAgoISO = moment().utc().subtract(180, 'days');
-  //   var yearAgoEpoch = timeAgoISO.unix();
-  //   var timeAgo = moment(timeAgoISO);
-  //   var lastDate = null;
-  //   var rides = [];
-
-  //   for (var i = 0; i < response.data.length; i++) {
-  //     var currentDate = moment(response.data[i].start_date_local);
-  //     var dateDiff = !lastDate ? currentDate.from(timeAgoISO) : currentDate.from(lastDate);
-  //     var daysBetween = 0;
-  //     var timeInWords = dateDiff.split(" ");
-
-  //     if (timeInWords[2] === 'days') {
-  //       daysBetween = Number(timeInWords[1] - 1);
-  //       while (daysBetween !== 0) {
-  //         rides.push(0);
-  //         daysBetween--;
-  //       }
-  //     } else if (timeInWords[2] === 'month') {
-  //       var lastDateDIM = moment(lastDate).daysInMonth();
-  //       var lastDateNum = lastDate.toString().split('').slice(8, 10).join('');
-  //       var firstHalf = lastDateDIM - Number(lastDateNum);
-  //       var secondHalf = currentDate.toString().split('').slice(8, 10).join('');
-  //       daysBetween = firstHalf + Number(secondHalf);
-
-  //       while (daysBetween !== 0) {
-  //         rides.push(0);
-  //         daysBetween--;
-  //       }
-  //     } else if (timeInWords[2] === 'months') {
-  //       daysBetween = timeInWords[1] * 30;
-  //       while (daysBetween !== 0) {
-  //         rides.push(0);
-  //         daysBetween--;
-  //       }
-  //     }
-
-  //     if (timeInWords[2] === 'hours') {
-  //       if (Number(timeInWords[1]) < 14 && i !== 0) {
-  //         continue;
-  //       }
-  //     }
-  //     rides.push(response.data[i]);
-  //     lastDate = currentDate;
-  //   }
-  //   if (rides.length < this.state.dates.length) {
-  //     while (rides.length < this.state.dates.length) {
-  //       rides.unshift(0);
-  //     }
-  //   }
-
-  //   return rides;
-  // }
-
-
 
   componentDidMount() {
     this.authorize();

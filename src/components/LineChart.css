@@ -34,14 +34,24 @@ path.area {
   stroke: #000;
 }*/
 
-.axis line {
-  fill: none;
-  stroke: #000;
+
+
+.axis text {
+  fill: grey;
   shape-rendering: crispEdges;
+  font-family: Helvetica;
 }
 
+.axis {
+  fill: #eeeeee;
+}
+
+/*text {
+  font-family: Arial;
+  color: blue;
+}*/
 .bar {
-  fill: steelblue;
+  fill: skyblue;
 }
 
 .bar:hover {
