@@ -3,7 +3,6 @@ import './App.css';
 import axios from 'axios';
 import moment from 'moment';
 import LineChart from './components/LineChart.js'
-// import FitnessChart from './components/FitnessChart.js';
 
 class App extends Component {
   constructor(props) {
@@ -32,21 +31,24 @@ class App extends Component {
     .then((response) => {
       let datesArray = this.createDatesArray();
       let formattedData = this.sortFitness(response, datesArray);
-      let formattedDataFitnessLine = this.createFitnessLine(formattedData)
-      console.log(formattedDataFitnessLine)
-      formattedData.forEach((d) => {
+      let formattedDataFitnessLine = this.createFitnessLine(formattedData);
+      formattedDataFitnessLine.forEach((d) => {
           d.formattedDate = new Date(d.formattedDate);
           d.kilojoules = !d.kilojoules || d.kilojoules === undefined
             ?  0
             : d.kilojoules;
         });
+      return formattedDataFitnessLine;
+    })
+    .then((response) => {
       this.setState({
-        data: formattedData,
+        data: response,
       })
     });
   }
 
   //this returns an array with all the dates from 180 days ago to today
+
   createDatesArray() {
     let timeAgoISO = moment().utc().subtract(180, 'days').format();
     let date1 = new Date();
@@ -55,16 +57,14 @@ class App extends Component {
     let datesBetween = [];
 
     while(date2 < date1) {
-        let formattedDate = date1.toString().split('').slice(4, 15).join('');
-
-        datesBetween.push({
-          formattedDate: formattedDate,
-          fitLine: 0,
-          kilojoules: 0,
-        });
-
-        day = date1.getDate()
-        date1 = new Date(date1.setDate(--day));
+      let formattedDate = date1.toString().split('').slice(4, 15).join('');
+      datesBetween.push({
+        formattedDate: formattedDate,
+        fitLine: 0,
+        kilojoules: 0,
+      });
+      day = date1.getDate()
+      date1 = new Date(date1.setDate(--day));
     }
 
     return datesBetween.reverse();
@@ -72,7 +72,6 @@ class App extends Component {
 
   //this sorts each index of the response data to the relative date index on the dates array
   sortFitness(response, dates) {
-    console.log(response.data)
     let startJ = 1;
     for (var i = 0; i < response.data.length; i++) {
       let currentRide = response.data[i];
@@ -97,42 +96,26 @@ class App extends Component {
   createFitnessLine(data) {
     let total = 0;
     let consecutiveZero = 0;
-    //get kj / 500 for current fitness
-    //first 0 is - .5, after its -1
-    //add fitnessLine property to data item with corresponding current total
-
-
-    //iterate
-      //each work out analyze amount of KJ.
-      //it will increase the total based on that amount
-
 
     for (var i = 0; i < data.length; i++) {
-
       let kj = data[i].kilojoules;
-
       kj === 0
         ? consecutiveZero += 1
         : consecutiveZero = 0;
 
-
       if (kj > 0) {
-
-        total += total < 10000
+        total += total < 100
           ? (kj / 500)
           : (kj / 400);
 
       } else {
-
         total -= total > 0
           ? total - (0.90 * total)
           : 0;
-
       }
       data[i].fitnessLine = total;
-      console.log(data[i])
     }
-
+    return data;
   }
 
   componentDidMount() {

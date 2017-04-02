@@ -34,12 +34,11 @@ class LineChart extends React.Component {
     var width = 825 - margin.left - margin.right;
     var height = 500 - margin.top - margin.bottom;
     var padding = 100
-    //parse date / time
-
 
     //set ranges
     var x = d3.scaleTime().rangeRound([0, width]);
-    var y = d3.scaleLinear().rangeRound([height, 0]);
+    var y0 = d3.scaleLinear().rangeRound([height, 0]);
+    var y1 = d3.scaleLinear().rangeRound([height, 0]);
 
 
     // initialize and append the svg canvas to faux-DOM
@@ -58,24 +57,36 @@ class LineChart extends React.Component {
       x.domain([new Date(this.state.data[0].formattedDate), new Date(this.state.data[this.state.data.length-1].formattedDate)])
 
       // y.domain([0, d3.max(this.state.data, function(d) { return d.kilojoules; })]);
-      y.domain([0, d3.max(this.state.data, function(d) { return d.kilojoules; }) + 200]);
+      y0.domain([0, d3.max(this.state.data, function(d) { return d.kilojoules; }) + 200]);
+      y1.domain([0, d3.max(this.state.data, function(d) { return d.fitnessLine; }) + 5]);
 
 
 
     // //define the line
     var valueline = d3.line()
-        .x(function(d) { return x(d.formattedDate); })
-        .y(function(d) { return y(d.kilojoules); });
+      .x(function(d) { return x(d.formattedDate); })
+      .y(function(d) { return y1(d.fitnessLine); });
 
-      // //Add the valueline path.
-      // svg.append("path")
-      //     .datum(this.state.data)
-      //     .attr("fill", "none")
-      //     .attr("stroke", "steelblue")
-      //     .attr("stroke-linejoin", "round")
-      //     .attr("stroke-linecap", "round")
-      //     .attr("stroke-width", .5)
-      //     .attr("d", valueline);
+    var area = d3.area()
+      .x(function(d) { return x(d.formattedDate); })
+      .y0(height)
+      .y1(function(d) { return y1(d.fitnessLine); });
+
+
+      //Add the valueline path.
+      svg.append("path")
+          .datum(this.state.data)
+          .attr("fill", "none")
+          .attr("stroke", "steelblue")
+          .attr("stroke-linejoin", "round")
+          .attr("stroke-linecap", "round")
+          .attr("stroke-width", 3)
+          .attr("d", valueline);
+
+      svg.append("path")
+          .datum(this.state.data)
+          .attr("class", "area")
+          .attr("d", area);
 
      //append the x grid line
       svg.append("g")
@@ -92,11 +103,10 @@ class LineChart extends React.Component {
      //append the y grid line
       svg.append("g")
           .attr("class", "grid")
-          .call(d3.axisLeft(y)
+          .call(d3.axisLeft(y0)
               .ticks(3)
               .tickSize(-width)
-              .tickFormat("")
-          )
+              .tickFormat(""))
           .selectAll(".tick:not(:first-of-type) line").attr("stroke", "#777").attr("stroke-dasharray", "2,2")
           .selectAll(".tick text").attr("x", 4).attr("dy", -4);
 
@@ -114,10 +124,10 @@ class LineChart extends React.Component {
         .attr("dy", ".7em")
 
 
-      // Add the Y Axis
+      // Add the left Y Axis
       svg.append("g")
           .attr("class", "axis")
-          .call(d3.axisLeft(y)
+          .call(d3.axisLeft(y0)
             .ticks(15)
             .tickFormat(function(d) {
               return this.parentNode.nextSibling
@@ -125,14 +135,20 @@ class LineChart extends React.Component {
                 : d + ' Kilojoules'
             }))
 
+      // Add the right Y Axis
+      svg.append("g")
+          .attr("class", "axis")
+          .attr("transform", "translate(" + width + " ,0)")
+          .call(d3.axisRight(y1))
+
       svg.selectAll(".bar")
       .data(this.state.data)
     .enter().append("rect")
       .attr("class", "bar")
       .attr("width", "3px")
       .attr("x", function(d) { return x(d.formattedDate); })
-      .attr("y", function(d) { return y(d.kilojoules); })
-      .attr("height", function(d) { return height - y(d.kilojoules); });
+      .attr("y", function(d) { return y0(d.kilojoules); })
+      .attr("height", function(d) { return height - y0(d.kilojoules); });
 
 
     return node.toReact();
