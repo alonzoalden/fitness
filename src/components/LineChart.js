@@ -3,7 +3,8 @@ import './LineChart.css';
 import ReactFauxDOM from 'react-faux-dom';
 import * as d3 from 'd3';
 import moment from 'moment';
-
+import WorkoutModal from './WorkoutModal.js';
+import { Modal, ModalManager, Effect } from 'react-dynamic-modal';
 
 class LineChart extends React.Component {
   constructor(props) {
@@ -18,11 +19,14 @@ class LineChart extends React.Component {
       data: nextProps.data,
     })
     console.log(this.state)
+  }
 
+  openModal(a) {
+    console.log(a);
+    ModalManager.open(<WorkoutModal text={a.kilojoules} onRequestClose={() => true}/>);
   }
 
   render() {
-
     if (this.state.data.length === 0) {
       return (
         <p>loading</p>
@@ -77,7 +81,7 @@ class LineChart extends React.Component {
       svg.append("path")
           .datum(this.state.data)
           .attr("fill", "none")
-          .attr("stroke", "steelblue")
+          .attr("class", "line")
           .attr("stroke-linejoin", "round")
           .attr("stroke-linecap", "round")
           .attr("stroke-width", 3)
@@ -97,7 +101,9 @@ class LineChart extends React.Component {
               .tickSize(-height)
               .tickFormat("")
           )
-          .selectAll(".tick:not(:first-of-type) line").attr("stroke", "#777").attr("stroke-dasharray", "2,2")
+          .selectAll(".tick:not(:first-of-type) line")
+            .attr("stroke", "#777")
+            .attr("stroke-dasharray", "2,2")
           .selectAll(".tick text").attr("x", 4).attr("dy", -4);
 
      //append the y grid line
@@ -107,7 +113,9 @@ class LineChart extends React.Component {
               .ticks(3)
               .tickSize(-width)
               .tickFormat(""))
-          .selectAll(".tick:not(:first-of-type) line").attr("stroke", "#777").attr("stroke-dasharray", "2,2")
+          .selectAll(".tick:not(:first-of-type) line")
+            .attr("stroke", "#777")
+            .attr("stroke-dasharray", "2,2")
           .selectAll(".tick text").attr("x", 4).attr("dy", -4);
 
 
@@ -141,7 +149,8 @@ class LineChart extends React.Component {
           .attr("transform", "translate(" + width + " ,0)")
           .call(d3.axisRight(y1))
 
-      svg.selectAll(".bar")
+      //Add the bars
+var bars = svg.selectAll(".bar")
       .data(this.state.data)
     .enter().append("rect")
       .attr("class", "bar")
@@ -149,7 +158,9 @@ class LineChart extends React.Component {
       .attr("x", function(d) { return x(d.formattedDate); })
       .attr("y", function(d) { return y0(d.kilojoules); })
       .attr("height", function(d) { return height - y0(d.kilojoules); });
-
+      bars.on("click", (a) => {
+        this.openModal(a);
+      })
 
     return node.toReact();
     }

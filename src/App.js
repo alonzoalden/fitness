@@ -124,14 +124,13 @@ class App extends Component {
 
   render() {
 
-
     return (
       <div className="App">
         <div className="App-header">
           <h2>Fitness</h2>
         </div>
         <p className="App-intro">
-          Strava based fitness checker.
+          Information based off Strava records.
         </p>
         <div id="graph">
           <LineChart

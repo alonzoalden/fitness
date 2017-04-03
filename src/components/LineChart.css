@@ -47,17 +47,25 @@ path.line {
 }
 
 .area {
-  fill: lightsteelblue;
+  fill: #A9A9A9;
 }
 
 /*text {
   font-family: Arial;
   color: blue;
 }*/
+
+.line {
+  stroke: #2F4F4F;
+}
+
 .bar {
-  fill: lightblue;
+  fill: #2F4F4F;
+  opacity: 0.25;
+  transition: opacity 0.5s ease;
 }
 
 .bar:hover {
-  fill: brown;
+  fill: #6A5ACD;
+  opacity: 1;
 }
