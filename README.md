@@ -1,4 +1,8 @@
-Strava based fitness checker. Work in progress.
+To run in production mode:
+
+1. In terminal, npm install
+2. npm start
 
 
-This project was bootstrapped with create react app.
+--------
+Deployed Link will be up shortly.
