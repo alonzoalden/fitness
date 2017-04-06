@@ -3,6 +3,7 @@ import './App.css';
 import axios from 'axios';
 import moment from 'moment';
 import LineChart from './components/LineChart.js'
+import BikeMap from './components/BikeMap.js';
 
 class App extends Component {
   constructor(props) {
@@ -137,6 +138,9 @@ class App extends Component {
             data={this.state.data}
           />
         </div>
+
+
+
       </div>
     );
   }
