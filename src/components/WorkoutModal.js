@@ -20,6 +20,10 @@ class WorkoutModal extends Component {
     }
   }
 
+  componentDidMount() {
+    let decodedPath = google.maps.geometry.encoding.decodePath('asdf');
+  }
+
   render() {
     const { text, onRequestClose } = this.props;
     return (

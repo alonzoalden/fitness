@@ -42,6 +42,7 @@ class App extends Component {
       return formattedDataFitnessLine;
     })
     .then((response) => {
+      console.log(response)
       this.setState({
         data: response,
       })
