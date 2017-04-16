@@ -21,7 +21,7 @@ class WorkoutModal extends Component {
   }
 
   componentDidMount() {
-    let decodedPath = google.maps.geometry.encoding.decodePath('asdf');
+    // let decodedPath = google.maps.geometry.encoding.decodePath('asdf');
   }
 
   render() {
@@ -29,12 +29,12 @@ class WorkoutModal extends Component {
     return (
       <Modal
         onRequestClose={onRequestClose}
-        effect={Effect.Newspaper}>
+        effect={Effect.Fall}>
 
 
 
-        <h1>What you input : {text}</h1>
-        <p> asdfasdfasdf </p>
+        <h1>Total kj : {text}</h1>
+        <p> work in progress... </p>
         <div style={{height: '200px', width: '200px'}}>
           <BikeMap
             containerElement={

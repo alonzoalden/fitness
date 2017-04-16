@@ -23,7 +23,9 @@ class LineChart extends React.Component {
 
   openModal(a) {
     console.log(a);
-    ModalManager.open(<WorkoutModal text={a.kilojoules} onRequestClose={() => true}/>);
+    ModalManager.open(<WorkoutModal
+        text={a.kilojoules}
+        onRequestClose={() => true}/>);
   }
 
   render() {
